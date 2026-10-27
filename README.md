@@ -54,7 +54,7 @@
 | `commandpanel.bypass.cooldown` | OP | 跳过点击/传送冷却 |
 | `commandpanel.*` | OP | 以上全部 |
 
-> **注意**：按当前默认设置，普通玩家也能切换世界规则（例如关闭死亡不掉落、关闭生物破坏）。如果这是公共服务器，建议用 LuckPerms 收回 `commandpanel.gamerule`，或把 `config.yml` 中相关按钮的 `permission` 改成只有管理员拥有的权限节点。
+> **注意**：按默认设置，普通玩家也能切换世界规则（例如关闭死亡不掉落、关闭生物破坏）。如果是公共服务器，建议用 LuckPerms 收回 `commandpanel.gamerule`，或把 `config.yml` 中相关按钮的 `permission` 改成只有管理员拥有的权限节点。
 
 ## 配置说明
 
