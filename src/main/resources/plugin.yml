@@ -1,0 +1,47 @@
+name: CommandPanel
+version: '${version}'
+main: example.commandpanel.CommandPanelPlugin
+api-version: '1.21'
+load: POSTWORLD
+description: 面向新手的可视化指令面板，支持世界规则开关、重生点与玩家传送。
+author: CommandPanel
+
+commands:
+  cp:
+    description: 打开指令面板
+    usage: /cp [open|reload|help]
+    aliases: [panel, caidan, mianban]
+
+permissions:
+  commandpanel.use:
+    description: 打开指令面板
+    default: true
+  commandpanel.gamerule:
+    description: 在面板中切换世界规则
+    default: true
+  commandpanel.teleport:
+    description: 在面板中传送到其他玩家
+    default: true
+  commandpanel.spawn:
+    description: 设置、清除或回到个人重生点
+    default: true
+  commandpanel.back:
+    description: 回到上一次由面板传送前的位置
+    default: true
+  commandpanel.reload:
+    description: 重载面板配置
+    default: op
+  commandpanel.bypass.cooldown:
+    description: 跳过点击与传送冷却
+    default: op
+  commandpanel.*:
+    description: CommandPanel 的全部权限
+    default: op
+    children:
+      commandpanel.use: true
+      commandpanel.gamerule: true
+      commandpanel.teleport: true
+      commandpanel.spawn: true
+      commandpanel.back: true
+      commandpanel.reload: true
+      commandpanel.bypass.cooldown: true

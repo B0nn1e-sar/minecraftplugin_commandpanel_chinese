@@ -1,0 +1,414 @@
+# ============================================================
+#  CommandPanel - 面向新手的可视化指令面板
+#
+#  服主只需要改这个文件，就能增删按钮、修改文字和权限。
+#  改完后在游戏里输入 /cp reload 生效。
+#
+#  两种按钮：
+#    1. gamerule 开关：适合 keepInventory 这类 true/false 规则
+#    2. 其它动作：执行指令、设置重生点、传送玩家、打开子面板等
+#
+#  默认所有玩家都能使用全部玩法功能（按你的选择）。
+#  如果是公共服务器，建议用权限插件收回 commandpanel.gamerule，
+#  或把对应按钮的 permission 改成 commandpanel.admin。
+# ============================================================
+
+settings:
+  # 主面板的 ID，对应下面 panels 里的一个面板
+  main-panel: main
+
+  # 两次点击之间的冷却（毫秒），防止连点刷屏
+  click-cooldown-ms: 350
+
+  # 没有权限的按钮是否直接隐藏；false 则显示但点击时提示无权限
+  hide-no-permission: true
+
+  # 玩家进服时是否发送一条可点击的提示
+  join-hint: true
+  join-hint-delay-ticks: 20
+
+  teleport:
+    # 是否允许“传送到玩家”
+    enabled: true
+    # 连续传送到玩家的冷却（秒）
+    cooldown-seconds: 3
+    # 目标位置不安全时，在附近自动寻找安全落点
+    safe-landing: true
+    # 是否允许跨世界传送
+    cross-world: true
+
+  spawn:
+    # 个人重生点被方块堵住时，重生时自动寻找附近安全落点
+    safe-respawn: true
+
+messages:
+  prefix: "&8[&b指令面板&8] &r"
+
+  no-permission: "&c你没有权限使用这个按钮。 &7(%permission%)"
+  no-permission-lore: "&c你没有权限使用"
+  player-only: "&c这个指令只能由玩家执行。"
+  unknown-subcommand: "&c未知参数。用法: &f/cp [open|reload|help]"
+  panel-not-found: "&c找不到面板: &e%panel%"
+  config-error: "&c配置有误: %error%"
+
+  reloaded: "&a配置已重新加载，共载入 &e%panels% &a个面板。"
+  reload-failed: "&c配置加载失败，已保留旧配置；请查看控制台。"
+  help:
+    - "&b/cp &7- 打开主面板"
+    - "&b/cp open <面板> &7- 打开指定面板"
+    - "&b/cp reload &7- 重载配置"
+
+  cooldown: "&c请稍等 &e%seconds% &c秒后再试。"
+
+  gamerule-on: "&a已开启 &e%rule%&a（%scope%）。"
+  gamerule-off: "&c已关闭 &e%rule%&c（%scope%）。"
+  gamerule-unknown: "&c未知的游戏规则: &e%rule%"
+  gamerule-not-boolean: "&c规则 &e%rule% &c不是 true/false 类型，不能做成开关。"
+
+  spawn-set: "&a已将你的重生点设置在这里：&e%world% %x%, %y%, %z%"
+  spawn-cleared: "&e已清除你的个人重生点。"
+  spawn-none: "&e你还没有设置个人重生点，将前往世界出生点。"
+  spawn-teleported: "&a已回到你的个人重生点。"
+  spawn-world: "&a已传送到世界出生点。"
+  spawn-fail: "&c找不到安全的位置，操作已取消。"
+
+  teleport-disabled: "&c传送功能已被服主关闭。"
+  teleport-self: "&c你不能传送到自己身边。"
+  teleport-target-offline: "&c玩家 &e%target% &c已经不在线了。"
+  teleport-start: "&7正在传送到 &e%target%&7..."
+  teleport-done: "&a已传送到 &e%target%&a。"
+  teleport-fail: "&c传送失败，目标位置不安全或世界未加载。"
+  teleport-cross-world: "&c对方不在同一个世界，当前不允许跨世界传送。"
+
+  back-none: "&e没有可以返回的位置。"
+  back-done: "&a已回到上一次的位置。"
+  back-fail: "&c返回失败，目标位置不安全或世界未加载。"
+
+  player-list-title: "&8选择要传送的玩家 &7(%page%/%pages%)"
+  player-list-empty: "&7当前没有其他在线玩家。"
+  player-list-item-name: "&e%player%"
+  player-list-item-lore:
+    - "&7世界: &f%world%"
+    - "&7距离: &f%distance%"
+    - ""
+    - "&a点击传送"
+  player-list-prev: "&a← 上一页"
+  player-list-next: "&a下一页 →"
+  player-list-close: "&c关闭"
+  different-world: "不同世界"
+
+  state-on: "&a开启"
+  state-off: "&c关闭"
+  state-mixed: "&6部分开启"
+  scope-current: "当前世界"
+  scope-all: "所有世界"
+
+  join-hint: "&8[&b指令面板&8] &7输入 &b/cp &7或点击这里打开面板"
+  join-hint-hover: "&7点击打开指令面板"
+  command-failed: "&c指令执行失败: &7/%command%"
+  action-error: "&c动作执行失败: %error%"
+
+panels:
+  main:
+    title: "&8指令面板 &7· &f主菜单"
+    rows: 6
+    fill:
+      material: BLACK_STAINED_GLASS_PANE
+      name: " "
+
+    buttons:
+      # ---------------- 世界规则开关 ----------------
+      keep-inventory:
+        slot: 10
+        material: ORANGE_DYE
+        on-material: LIME_DYE
+        off-material: GRAY_DYE
+        name: "&e死亡不掉落"
+        lore:
+          - "&7死亡后保留物品与经验"
+          - "&7范围: &f%scope%"
+          - ""
+          - "&7当前: %state%"
+          - ""
+          - "&8点击切换"
+        permission: commandpanel.gamerule
+        action:
+          type: gamerule
+          rule: keepInventory
+          scope: all
+
+      daylight-cycle:
+        slot: 11
+        material: ORANGE_DYE
+        on-material: LIME_DYE
+        off-material: GRAY_DYE
+        name: "&e日夜交替"
+        lore:
+          - "&7时间是否会自然流逝"
+          - "&7范围: &f%scope%"
+          - ""
+          - "&7当前: %state%"
+          - ""
+          - "&8点击切换"
+        permission: commandpanel.gamerule
+        action:
+          type: gamerule
+          rule: doDaylightCycle
+          scope: current
+
+      weather-cycle:
+        slot: 12
+        material: ORANGE_DYE
+        on-material: LIME_DYE
+        off-material: GRAY_DYE
+        name: "&e天气变化"
+        lore:
+          - "&7天气是否会自然变化"
+          - "&7范围: &f%scope%"
+          - ""
+          - "&7当前: %state%"
+          - ""
+          - "&8点击切换"
+        permission: commandpanel.gamerule
+        action:
+          type: gamerule
+          rule: doWeatherCycle
+          scope: current
+
+      fire-tick:
+        slot: 13
+        material: ORANGE_DYE
+        on-material: LIME_DYE
+        off-material: GRAY_DYE
+        name: "&e火焰蔓延"
+        lore:
+          - "&7火焰是否会烧毁方块"
+          - "&7范围: &f%scope%"
+          - ""
+          - "&7当前: %state%"
+          - ""
+          - "&8点击切换"
+        permission: commandpanel.gamerule
+        action:
+          type: gamerule
+          rule: doFireTick
+          scope: current
+
+      mob-griefing:
+        slot: 14
+        material: ORANGE_DYE
+        on-material: LIME_DYE
+        off-material: GRAY_DYE
+        name: "&e生物破坏"
+        lore:
+          - "&7苦力怕、末影人等是否会破坏方块"
+          - "&7范围: &f%scope%"
+          - ""
+          - "&7当前: %state%"
+          - ""
+          - "&8点击切换"
+        permission: commandpanel.gamerule
+        action:
+          type: gamerule
+          rule: mobGriefing
+          scope: current
+
+      natural-regeneration:
+        slot: 15
+        material: ORANGE_DYE
+        on-material: LIME_DYE
+        off-material: GRAY_DYE
+        name: "&e自然回血"
+        lore:
+          - "&7饥饿值足够时是否自然恢复生命"
+          - "&7范围: &f%scope%"
+          - ""
+          - "&7当前: %state%"
+          - ""
+          - "&8点击切换"
+        permission: commandpanel.gamerule
+        action:
+          type: gamerule
+          rule: naturalRegeneration
+          scope: current
+
+      immediate-respawn:
+        slot: 16
+        material: ORANGE_DYE
+        on-material: LIME_DYE
+        off-material: GRAY_DYE
+        name: "&e立即重生"
+        lore:
+          - "&7死亡后跳过重生界面"
+          - "&7范围: &f%scope%"
+          - ""
+          - "&7当前: %state%"
+          - ""
+          - "&8点击切换"
+        permission: commandpanel.gamerule
+        action:
+          type: gamerule
+          rule: doImmediateRespawn
+          scope: current
+
+      # ---------------- 个人操作 ----------------
+      set-spawn:
+        slot: 19
+        material: RED_BED
+        name: "&a设置个人重生点"
+        lore:
+          - "&7把当前位置设为你的重生点"
+          - "&7死亡后会在这里复活"
+          - ""
+          - "&8点击设置"
+        permission: commandpanel.spawn
+        action:
+          type: set-spawn
+
+      go-spawn:
+        slot: 20
+        material: COMPASS
+        name: "&a回到个人重生点"
+        lore:
+          - "&7传送到你设置的重生点"
+          - "&7没有设置时会前往世界出生点"
+          - ""
+          - "&8点击传送"
+        permission: commandpanel.spawn
+        action:
+          type: spawn
+
+      teleport-player:
+        slot: 21
+        material: ENDER_PEARL
+        name: "&b传送到玩家"
+        lore:
+          - "&7打开在线玩家列表"
+          - "&7选择一位玩家并传送过去"
+          - ""
+          - "&7冷却: &f%teleport-cooldown% 秒"
+          - ""
+          - "&8点击选择玩家"
+        permission: commandpanel.teleport
+        action:
+          type: teleport-player
+
+      back:
+        slot: 22
+        material: ARROW
+        name: "&a回到上次位置"
+        lore:
+          - "&7回到上一次由面板传送前的位置"
+          - "&7适合传送错了的时候使用"
+          - ""
+          - "&8点击返回"
+        permission: commandpanel.back
+        action:
+          type: back
+
+      clear-spawn:
+        slot: 23
+        material: BARRIER
+        name: "&c清除个人重生点"
+        lore:
+          - "&7删除你设置的个人重生点"
+          - "&7之后死亡会回到世界出生点"
+          - ""
+          - "&8点击清除"
+        permission: commandpanel.spawn
+        action:
+          type: clear-spawn
+
+      world-spawn:
+        slot: 24
+        material: GRASS_BLOCK
+        name: "&a回到世界出生点"
+        lore:
+          - "&7传送到当前世界的出生点"
+          - ""
+          - "&8点击传送"
+        permission: commandpanel.spawn
+        action:
+          type: world-spawn
+
+      # ---------------- 说明与关闭 ----------------
+      guide:
+        slot: 31
+        material: BOOK
+        name: "&e使用说明"
+        lore:
+          - "&7点击按钮即可执行对应操作"
+          - "&a绿色 &7= 开启，&c灰色 &7= 关闭"
+          - "&6橙色 &7= 部分世界开启"
+          - ""
+          - "&7随时输入 &b/cp &7打开这个面板"
+
+      reload:
+        slot: 45
+        material: REDSTONE
+        name: "&c重载配置"
+        lore:
+          - "&7修改 config.yml 后使用"
+          - "&7只有管理员能看到这个按钮"
+          - ""
+          - "&8点击重载"
+        permission: commandpanel.reload
+        action:
+          type: command
+          command: "cp reload"
+          as: player
+
+      close:
+        slot: 49
+        material: BARRIER
+        name: "&7关闭面板"
+        lore:
+          - "&8点击关闭"
+        action:
+          type: close
+
+# ============================================================
+#  自定义示例（把前面的 # 去掉即可启用）
+#
+#  执行原版指令按钮：
+#      my-command:
+#        slot: 25
+#        material: PAPER
+#        name: "&e执行 /spawn"
+#        lore:
+#          - "&7以玩家身份执行 /spawn"
+#        action:
+#          type: command
+#          command: "spawn"
+#          as: player
+#
+#  以控制台身份执行（可使用 %player% / %world% / %x% / %y% / %z%）：
+#      console-command:
+#        slot: 26
+#        material: COMMAND_BLOCK
+#        name: "&c公告"
+#        action:
+#          type: command
+#          command: "say %player% 打开了指令面板"
+#          as: console
+#
+#  打开子面板：
+#      open-sub:
+#        slot: 27
+#        material: CHEST
+#        name: "&e更多功能"
+#        action:
+#          type: open
+#          panel: tools
+#
+#  一次执行多个动作：
+#      multi:
+#        slot: 28
+#        material: BLAZE_ROD
+#        name: "&6示例"
+#        actions:
+#          - type: message
+#            text: "&a你好，%player%！"
+#          - type: message
+#            text: "&7这条消息会显示在第一条后面。"
+# ============================================================
