@@ -151,23 +151,3 @@ settings:
   spawn:
     safe-respawn: true        # 重生点被堵住时自动找安全落点
 ```
-
-## 开发与测试
-
-```bash
-gradlew.bat runServer
-```
-
-`runServer` 会使用 `run/` 目录启动一个 Paper 1.21.1 测试服。首次使用需要同意 Minecraft EULA（在 `run/eula.txt` 中写入 `eula=true`）。
-
-## 已知限制
-
-- `gamerule` 动作只支持 true/false 类型规则；`randomTickSpeed` 等数值规则请用 `command` 动作执行。
-- 个人重生点是“强制重生点”，会覆盖床/重生锚；床和重生锚本身仍按原版逻辑处理。
-- `back` 只记录由本插件发起的传送（传送到玩家、回重生点、回世界出生点）。
-- `/cp reload` 会关闭所有已打开的面板，避免旧配置残留。
-- 没有游戏内玩家编辑器；面板内容由服主通过 `config.yml` 维护。
-
-## 安全提示
-
-`command` 动作以控制台身份执行时拥有完整控制台权限。`config.yml` 只应交给可信的管理员修改，不要接受玩家提交的配置片段。
