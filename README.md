@@ -16,21 +16,12 @@
 
 - **Paper 1.21.1**（使用 Paper API）
 - **Java 21**
-- 不支持 Spigot / CraftBukkit；如需 1.20.x 或其他版本，需要调整 `build.gradle.kts` 中的 `paper-api` 版本并重新编译。
+- 不支持 Spigot / CraftBukkit。
 
 ## 安装
 
-1. 构建：
-
-   ```bash
-   # Windows
-   gradlew.bat build
-
-   # macOS / Linux
-   ./gradlew build
-   ```
-
-2. 把 `build/libs/commandpanel-1.0.0.jar` 放进服务器的 `plugins/` 目录。
+1. 下载release中的插件文件
+2. 把 `commandpanel-1.0.0.jar` 放进服务器的 `plugins/` 目录。
 3. 重启服务器。首次启动会生成 `plugins/CommandPanel/config.yml`。
 4. 玩家输入 `/cp`、`/panel`、`/caidan` 或 `/mianban` 打开面板。
 
